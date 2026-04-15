@@ -1,0 +1,229 @@
+{
+  "company": {
+    "name": "GenLedge Support",
+    "tagline": "Your AI accounting assistant"
+  },
+  "customer": {
+    "id": "CUST-C102",
+    "name": "Sarah Chen",
+    "business_name": "Chen Bakery",
+    "email": "sarah@chenbakery.com",
+    "phone": "+1 (905) 555-5219",
+    "account_id": "ACCT-8472",
+    "account_last4": "8472",
+    "phone_last4": "5219",
+    "preferred_contact": "email",
+    "accountant_assigned": "Maya Torres, CPA",
+    "timezone": "America/Toronto",
+    "onboarded": "2024-07-15"
+  },
+  "vendors": [
+    {"id": "VEN-STRIPE", "name": "Stripe", "category": "payment_processing"},
+    {"id": "VEN-AWS", "name": "AWS", "category": "software"},
+    {"id": "VEN-GW", "name": "Google Workspace", "category": "software"},
+    {"id": "VEN-SHOPIFY", "name": "Shopify", "category": "software"},
+    {"id": "VEN-SYSCO", "name": "Sysco Foods", "category": "cost_of_goods"}
+  ],
+  "invoices": [
+    {
+      "id": "INV-2025-0988",
+      "issued": "2025-12-02",
+      "due": "2026-01-01",
+      "amount": 1240.50,
+      "description": "Monthly bookkeeping, December 2025",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2026-0012",
+      "issued": "2026-01-05",
+      "due": "2026-02-04",
+      "amount": 1240.50,
+      "description": "Monthly bookkeeping, January 2026",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2026-0024",
+      "issued": "2026-02-05",
+      "due": "2026-03-07",
+      "amount": 1240.50,
+      "description": "Monthly bookkeeping, February 2026",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2026-0038",
+      "issued": "2026-03-03",
+      "due": "2026-04-02",
+      "amount": 3425.00,
+      "description": "Monthly bookkeeping plus Q1 tax preparation",
+      "status": "open",
+      "days_overdue": 13,
+      "notes": "Combined monthly retainer with Q1 estimated tax filing package."
+    },
+    {
+      "id": "INV-2026-0051",
+      "issued": "2026-04-01",
+      "due": "2026-05-01",
+      "amount": 1240.50,
+      "description": "Monthly bookkeeping, April 2026",
+      "status": "open",
+      "days_overdue": 0
+    },
+    {
+      "id": "INV-2025-0411",
+      "issued": "2025-04-10",
+      "due": "2025-05-10",
+      "amount": 850.00,
+      "description": "Year-end tax filing 2024",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2025-0620",
+      "issued": "2025-06-15",
+      "due": "2025-07-15",
+      "amount": 425.00,
+      "description": "Sales tax filing Q2 2025",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2025-0899",
+      "issued": "2025-10-12",
+      "due": "2025-11-11",
+      "amount": 425.00,
+      "description": "Sales tax filing Q3 2025",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2026-0007",
+      "issued": "2026-01-20",
+      "due": "2026-02-19",
+      "amount": 890.00,
+      "description": "Year-end tax filing 2025",
+      "status": "paid"
+    },
+    {
+      "id": "INV-2026-0045",
+      "issued": "2026-03-25",
+      "due": "2026-04-24",
+      "amount": 425.00,
+      "description": "Sales tax filing Q1 2026",
+      "status": "open",
+      "days_overdue": 0
+    }
+  ],
+  "payments": [
+    {
+      "id": "PMT-2025-201",
+      "invoice_id": "INV-2025-0988",
+      "amount": 1240.50,
+      "paid_at": "2025-12-29",
+      "method": "ACH",
+      "confirmation": "ACH-2025-AB41",
+      "reconciliation_status": "matched"
+    },
+    {
+      "id": "PMT-2026-007",
+      "invoice_id": "INV-2026-0012",
+      "amount": 1240.50,
+      "paid_at": "2026-01-30",
+      "method": "ACH",
+      "confirmation": "ACH-2026-CD22",
+      "reconciliation_status": "matched"
+    },
+    {
+      "id": "PMT-2026-018",
+      "invoice_id": "INV-2026-0024",
+      "amount": 1240.50,
+      "paid_at": "2026-02-28",
+      "method": "ACH",
+      "confirmation": "ACH-2026-EF91",
+      "reconciliation_status": "matched"
+    },
+    {
+      "id": "PMT-2026-029",
+      "invoice_id": null,
+      "amount": 3425.00,
+      "paid_at": "2026-03-30",
+      "method": "ACH",
+      "confirmation": "ACH-2026-GH48",
+      "memo": "March invoice",
+      "reconciliation_status": "unmatched",
+      "internal_note": "Payer memo lacked invoice number. Same amount as open invoice INV-2026-0038. Ops did not auto-apply because memo was ambiguous."
+    },
+    {
+      "id": "PMT-2025-101",
+      "invoice_id": "INV-2025-0411",
+      "amount": 850.00,
+      "paid_at": "2025-05-08",
+      "method": "Credit card",
+      "confirmation": "CC-2025-JKL4",
+      "reconciliation_status": "matched"
+    },
+    {
+      "id": "PMT-2025-150",
+      "invoice_id": "INV-2025-0620",
+      "amount": 425.00,
+      "paid_at": "2025-07-12",
+      "method": "ACH",
+      "confirmation": "ACH-2025-MN11",
+      "reconciliation_status": "matched"
+    },
+    {
+      "id": "PMT-2025-189",
+      "invoice_id": "INV-2025-0899",
+      "amount": 425.00,
+      "paid_at": "2025-11-08",
+      "method": "ACH",
+      "confirmation": "ACH-2025-OP33",
+      "reconciliation_status": "matched"
+    },
+    {
+      "id": "PMT-2026-003",
+      "invoice_id": "INV-2026-0007",
+      "amount": 890.00,
+      "paid_at": "2026-02-15",
+      "method": "ACH",
+      "confirmation": "ACH-2026-QR85",
+      "reconciliation_status": "matched"
+    }
+  ],
+  "transactions": [
+    {"id": "TXN-F01", "date": "2026-02-03", "vendor": "Stripe", "amount": 88.50, "category": "payment_processing_fees", "description": "Stripe processing fees, early Feb"},
+    {"id": "TXN-F02", "date": "2026-02-28", "vendor": "Stripe", "amount": 92.10, "category": "payment_processing_fees", "description": "Stripe processing fees, late Feb"},
+    {"id": "TXN-F03", "date": "2026-03-05", "vendor": "Stripe", "amount": 151.80, "category": "payment_processing_fees", "description": "Stripe processing fees, early Mar"},
+    {"id": "TXN-F04", "date": "2026-03-18", "vendor": "Stripe", "amount": 153.20, "category": "payment_processing_fees", "description": "Stripe processing fees, mid Mar"},
+    {"id": "TXN-F05", "date": "2026-03-31", "vendor": "Stripe", "amount": 158.90, "category": "payment_processing_fees", "description": "Stripe processing fees, end Mar"},
+    {"id": "TXN-F06", "date": "2026-04-08", "vendor": "Stripe", "amount": 205.40, "category": "payment_processing_fees", "description": "Stripe processing fees, early Apr"},
+    {"id": "TXN-A01", "date": "2026-02-01", "vendor": "AWS", "amount": 182.10, "category": "software", "description": "AWS monthly"},
+    {"id": "TXN-A02", "date": "2026-03-01", "vendor": "AWS", "amount": 184.50, "category": "software", "description": "AWS monthly"},
+    {"id": "TXN-A03", "date": "2026-04-01", "vendor": "AWS", "amount": 185.20, "category": "software", "description": "AWS monthly"},
+    {"id": "TXN-G01", "date": "2026-02-04", "vendor": "Google Workspace", "amount": 36.00, "category": "software", "description": "Google Workspace monthly"},
+    {"id": "TXN-G02", "date": "2026-03-04", "vendor": "Google Workspace", "amount": 36.00, "category": "software", "description": "Google Workspace monthly"},
+    {"id": "TXN-G03", "date": "2026-04-04", "vendor": "Google Workspace", "amount": 36.00, "category": "software", "description": "Google Workspace monthly"},
+    {"id": "TXN-S01", "date": "2026-02-15", "vendor": "Shopify", "amount": 79.00, "category": "software", "description": "Shopify monthly"},
+    {"id": "TXN-S02", "date": "2026-03-15", "vendor": "Shopify", "amount": 79.00, "category": "software", "description": "Shopify monthly"},
+    {"id": "TXN-S03", "date": "2026-04-15", "vendor": "Shopify", "amount": 79.00, "category": "software", "description": "Shopify monthly"}
+  ],
+  "stripe_context": {
+    "volume_note": "Stripe published a fee tier change effective 2026-03-01: processing fee increased from 2.7% + $0.30 to 2.9% + $0.30 per transaction for Canadian cards. Chen Bakery also ran a 15%-off promo March 1 to 15 that lifted transaction volume roughly 40% month over month.",
+    "prior_month_avg_txn_fee_rate": 0.0273,
+    "current_month_avg_txn_fee_rate": 0.0295
+  },
+  "document_tickets": [
+    {
+      "id": "DOC-2026-047",
+      "doc_type": "invoice_copy",
+      "details": "Duplicate of INV-2026-0024",
+      "status": "completed",
+      "created": "2026-03-10",
+      "completed": "2026-03-11"
+    },
+    {
+      "id": "DOC-2026-062",
+      "doc_type": "bank_letter",
+      "details": "Proof of account for commercial lease application",
+      "status": "in_progress",
+      "created": "2026-04-05"
+    }
+  ],
+  "as_of": "2026-04-15"
+}

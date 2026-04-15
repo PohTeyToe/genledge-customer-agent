@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: genledge-customer-agent-api
+    runtime: docker
+    plan: free
+    region: oregon
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: CLAUDE_CODE_OAUTH_TOKEN
+        sync: false
+      - key: DEMO_SHARED_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
