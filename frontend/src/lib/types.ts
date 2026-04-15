@@ -19,23 +19,29 @@ export interface Company {
 }
 
 export interface ToolCallEvent {
-  iteration: number;
   tool: string;
   input: Record<string, unknown>;
   result: Record<string, unknown>;
+  duration_ms?: number;
+}
+
+export interface AgentStep {
+  iteration: number;
+  reasoning: string;
+  tool_calls: ToolCallEvent[];
 }
 
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
-  tool_calls?: ToolCallEvent[];
+  steps?: AgentStep[];
   iterations?: number;
 }
 
 export interface ChatResponse {
   message: string;
-  tool_calls: ToolCallEvent[];
   iterations: number;
+  steps: AgentStep[];
   customer: Customer;
   new_tickets: Array<Record<string, unknown>>;
   callbacks: Array<Record<string, unknown>>;

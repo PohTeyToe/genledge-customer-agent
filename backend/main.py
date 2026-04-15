@@ -334,16 +334,22 @@ class ChatRequest(BaseModel):
 
 
 class ToolCallEvent(BaseModel):
-    iteration: int
     tool: str
     input: Dict[str, Any]
     result: Dict[str, Any]
+    duration_ms: int = 0
+
+
+class AgentStep(BaseModel):
+    iteration: int
+    reasoning: str
+    tool_calls: List[ToolCallEvent]
 
 
 class ChatResponse(BaseModel):
     message: str
-    tool_calls: List[ToolCallEvent]
     iterations: int
+    steps: List[AgentStep]
     customer: Dict[str, Any]
     new_tickets: List[Dict[str, Any]]
     callbacks: List[Dict[str, Any]]
@@ -497,9 +503,9 @@ def _extract_json_envelope(text: str) -> Optional[Dict[str, Any]]:
 def _run_agent_turn(
     session: Dict[str, Any],
     messages: List[ChatMessage],
-) -> Tuple[str, List[ToolCallEvent], int]:
+) -> Tuple[str, List[AgentStep], int]:
     system_prompt = _build_system_prompt(session["data"])
-    tool_events: List[ToolCallEvent] = []
+    steps: List[AgentStep] = []
     observations: List[Dict[str, Any]] = []
     final_message = ""
 
@@ -518,12 +524,14 @@ def _run_agent_turn(
             final_message = fallback or (
                 "I had trouble processing that. Let me get Maya on this."
             )
-            return final_message, tool_events, iteration
+            return final_message, steps, iteration
 
         raw_calls = envelope.get("tool_calls") or []
         next_step = (envelope.get("next_step") or "respond").strip()
         assistant_message = (envelope.get("assistant_message") or "").strip()
+        reasoning = (envelope.get("reasoning") or "").strip()
 
+        iter_tool_events: List[ToolCallEvent] = []
         iter_observations: List[Dict[str, Any]] = []
         if isinstance(raw_calls, list):
             for call in raw_calls:
@@ -534,6 +542,7 @@ def _run_agent_turn(
                 if not isinstance(args, dict):
                     continue
                 executor = TOOL_EXECUTORS.get(tool_name)
+                t0 = time.monotonic()
                 if executor is None:
                     result = {"ok": False, "error": f"unknown tool {tool_name}"}
                 else:
@@ -542,10 +551,20 @@ def _run_agent_turn(
                     except Exception as exc:  # noqa: BLE001
                         logger.exception("tool %s crashed", tool_name)
                         result = {"ok": False, "error": str(exc)}
-                tool_events.append(
-                    ToolCallEvent(iteration=iteration, tool=str(tool_name), input=args, result=result)
+                duration_ms = int((time.monotonic() - t0) * 1000)
+                iter_tool_events.append(
+                    ToolCallEvent(
+                        tool=str(tool_name),
+                        input=args,
+                        result=result,
+                        duration_ms=duration_ms,
+                    )
                 )
                 iter_observations.append({"tool": tool_name, "args": args, "result": result})
+
+        steps.append(
+            AgentStep(iteration=iteration, reasoning=reasoning, tool_calls=iter_tool_events)
+        )
 
         if iter_observations:
             observations.append({"iteration": iteration, "calls": iter_observations})
@@ -554,9 +573,9 @@ def _run_agent_turn(
             final_message = assistant_message or (
                 "I have done what I can here. Let me hand this to Maya."
             )
-            return final_message, tool_events, iteration
+            return final_message, steps, iteration
 
-    return final_message or "Let me hand this to Maya.", tool_events, MAX_AGENT_ITERATIONS
+    return final_message or "Let me hand this to Maya.", steps, MAX_AGENT_ITERATIONS
 
 
 # ---------------------------------------------------------------------------
@@ -621,23 +640,24 @@ def create_app() -> FastAPI:
         session = _get_session(req.session_id)
         client_ip = get_remote_address(request)
         t0 = time.monotonic()
-        message, tool_events, iterations = _run_agent_turn(session, req.messages)
+        message, steps, iterations = _run_agent_turn(session, req.messages)
         duration_ms = int((time.monotonic() - t0) * 1000)
 
+        total_tool_calls = sum(len(s.tool_calls) for s in steps)
         logger.info(
             "chat ip=%s session=%s duration_ms=%s iterations=%s tool_calls=%s",
             client_ip,
             req.session_id,
             duration_ms,
             iterations,
-            len(tool_events),
+            total_tool_calls,
         )
 
         data = session["data"]
         return ChatResponse(
             message=message,
-            tool_calls=tool_events,
             iterations=iterations,
+            steps=steps,
             customer=data["customer"],
             new_tickets=session["new_tickets"],
             callbacks=session["callbacks"],

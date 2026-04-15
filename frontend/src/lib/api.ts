@@ -53,3 +53,7 @@ export function sendChat(
 export function apiBaseUrl(): string {
   return baseUrl();
 }
+
+export function warmup(): Promise<{ ok: boolean }> {
+  return fetch(`${baseUrl()}/health`).then((r) => r.json()).catch(() => ({ ok: false }));
+}

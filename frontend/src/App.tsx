@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IdentityBanner } from "./components/IdentityBanner";
 import { ChatPanel } from "./components/ChatPanel";
-import { fetchCustomer, resetSession, sendChat } from "./lib/api";
+import { fetchCustomer, resetSession, sendChat, warmup } from "./lib/api";
 import type { ChatMessage, Customer } from "./lib/types";
 
 function makeSessionId(): string {
@@ -20,6 +20,11 @@ export default function App() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Warm up the Render container so the first chat call doesn't eat a cold start.
+    warmup();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +56,7 @@ export default function App() {
       const assistant: ChatMessage = {
         role: "assistant",
         content: resp.message,
-        tool_calls: resp.tool_calls,
+        steps: resp.steps,
         iterations: resp.iterations,
       };
       setMessages((prev) => [...prev, assistant]);
