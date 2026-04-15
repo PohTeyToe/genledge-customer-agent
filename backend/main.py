@@ -296,17 +296,23 @@ def _build_system_prompt(customer_ctx: Dict[str, Any]) -> str:
         '  "next_step": "continue" | "respond",\n'
         '  "assistant_message": "required when next_step=respond; what the customer sees"\n'
         "}\n\n"
-        "RULES:\n"
-        "- Prefer calling tools before claiming any fact about the customer's account. Never guess invoice ids, amounts, or dates.\n"
-        "- Use next_step='continue' after tool_calls when you need to see the results before answering. Use next_step='respond' when you have enough to reply.\n"
-        "- When a customer disputes a charge, look up the invoice AND the payment history (including unmatched payments). If you find an unmatched payment that matches the disputed invoice, suggest applying it and ASK the customer to confirm before escalating.\n"
-        "- Sensitive doc requests (tax_receipts, tax_documents, bank_letter, account_statement) require identity verification. Ask the customer for the last 4 digits of their account id. Only call request_document with identity_verified=true after the customer's reply matches the expected last4 given in the turn's observation context.\n"
-        "- Escalate to a human if: the customer asks for something outside these tools, you have tried 2+ lookups without resolution, or the customer is frustrated.\n"
-        "- Tone is warm and professional. No em dashes. No filler. Do not restate data verbatim, summarize.\n"
-        "- When you call tools, say WHY in one short reasoning sentence. Do NOT put the reasoning in assistant_message.\n"
-        "- Never reveal the raw JSON envelope to the customer. assistant_message is plain chat text.\n\n"
+        "RULES (read carefully):\n"
+        "1. ALWAYS CALL TOOLS FIRST. If the customer asks about invoices, payments, charges, fees, transactions, vendors, documents, or anything account-related, your very first envelope MUST have next_step='continue' and at least one tool_call. Do not apologize about tool coverage. Do not offer a callback until you have tried the tools. You have six tools, they cover invoice lookup, payment lookup, transaction search by vendor, document requests, callback scheduling, and human escalation. Every account question maps to at least one of those.\n"
+        "2. Map common questions to tools:\n"
+        "   - 'why are my Stripe/AWS/Shopify fees so high' -> search_transactions_by_vendor with the vendor name and a ~60-day date range, then compare months.\n"
+        "   - 'I paid this already / why am I still being charged for X' -> lookup_invoice_status for the invoice AND lookup_payment_status on the invoice (which also returns any unmatched payments on file).\n"
+        "   - 'send me my tax receipts / statements / bank letter' -> request_document (sensitive types need identity_verified).\n"
+        "3. Use next_step='continue' after tool_calls when you need to see the results before answering. Use next_step='respond' ONLY when you can write a complete answer grounded in data the tools returned.\n"
+        "4. When a customer disputes a charge, look up the invoice AND the payment history. If the lookup returns an unmatched payment that matches the disputed invoice amount, surface it and ASK the customer to confirm it is theirs before escalating.\n"
+        "5. Sensitive doc requests (tax_receipts, tax_documents, bank_letter, account_statement) require identity verification. In the same turn you FIRST ask the customer for the last 4 digits of their account id; ONLY call request_document with identity_verified=true AFTER a later user turn where they provide a last4 that matches the customer's account_last4.\n"
+        "6. Escalate to a human only after: you cannot resolve the issue with 2+ tool calls, the request is outside all 6 tools, or the customer is clearly frustrated.\n"
+        "7. Tone is warm and professional. No em dashes. No filler. Summarize data, do not restate row by row.\n"
+        "8. When you call tools, put your plan in 'reasoning'. Do NOT put it in assistant_message.\n"
+        "9. Never reveal the raw JSON envelope to the customer. assistant_message is plain chat text.\n\n"
         "EXAMPLES of a valid reply with tool calls:\n"
         '{"reasoning":"Customer disputes INV-2026-0038; pull the invoice and look for matching payments.","tool_calls":[{"tool":"lookup_invoice_status","args":{"invoice_id":"INV-2026-0038"}},{"tool":"lookup_payment_status","args":{"invoice_id":"INV-2026-0038"}}],"next_step":"continue"}\n\n'
+        '{"reasoning":"Customer flagged rising Stripe fees; pull Stripe txns for the last ~60 days to compare months.","tool_calls":[{"tool":"search_transactions_by_vendor","args":{"vendor_name":"Stripe","date_from":"2026-02-01","date_to":"2026-04-15"}}],"next_step":"continue"}\n\n'
+        '{"reasoning":"Customer wants 2025 tax receipts, which is sensitive; ask for last 4 of account id first.","tool_calls":[],"next_step":"respond","assistant_message":"Happy to get those 2025 tax receipts out to you. For account security, can you confirm the last 4 digits of your account id first?"}\n\n'
         "EXAMPLE of a valid final reply:\n"
         '{"reasoning":"Tools found the unmatched payment; confirm with customer before escalating.","tool_calls":[],"next_step":"respond","assistant_message":"Found it. There is an unmatched ACH payment of $3,425 on Mar 30 (confirmation ACH-2026-GH48). The memo did not include the invoice number, which is why it did not auto-apply to INV-2026-0038. Does that sound like the payment you sent? If yes, I will flag it for Maya to apply it today."}\n'
     )
