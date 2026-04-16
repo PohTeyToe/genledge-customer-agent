@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import {
+  ArrowUpRight,
   Brain,
   Code2,
   Compass,
@@ -48,6 +49,28 @@ export function CaseStudyView() {
           <Pill icon={Brain}>Claude Haiku 4.5</Pill>
           <Pill icon={ShieldCheck}>Token-locked, rate-limited, budget-capped</Pill>
         </div>
+        <a
+          href="https://genledge-assistant.vercel.app"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex items-center gap-2 rounded-xl border border-sky-200 bg-sky-50/60 px-3.5 py-2.5 hover:border-sky-300 hover:bg-sky-50 transition group"
+        >
+          <div className="w-7 h-7 rounded-md bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
+            <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" strokeWidth={2.4} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-semibold text-slate-900 leading-tight">
+              Sister demo: Ledger Copilot
+            </div>
+            <div className="text-[11px] text-slate-600 leading-tight">
+              The accountant-facing half. Categorize, reconcile, draft AR
+              reminders. Same architectural pattern, different persona.
+              <span className="text-sky-700 font-medium ml-1">
+                genledge-assistant.vercel.app
+              </span>
+            </div>
+          </div>
+        </a>
       </motion.section>
 
       <motion.section variants={itemAnim} className="space-y-3">
@@ -63,9 +86,17 @@ export function CaseStudyView() {
         </Quote>
         <p className="text-[13.5px] text-slate-600 leading-relaxed">
           Two signals to optimize for: customer flow (not internal ops, that
-          was already covered by the Ledger Copilot demo shipped Monday), and
-          agentic depth (channel is incidental, the agent's reasoning loop
-          is the point).
+          was already covered by the{" "}
+          <a
+            href="https://genledge-assistant.vercel.app"
+            target="_blank"
+            rel="noreferrer"
+            className="text-sky-700 underline decoration-sky-300 underline-offset-2 hover:decoration-sky-600"
+          >
+            Ledger Copilot demo
+          </a>{" "}
+          shipped Monday), and agentic depth (channel is incidental, the
+          agent's reasoning loop is the point).
         </p>
       </motion.section>
 
