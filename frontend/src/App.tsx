@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import { IdentityBanner } from "./components/IdentityBanner";
+import { TopBar } from "./components/TopBar";
+import type { TabId } from "./components/TopBar";
 import { ChatPanel } from "./components/ChatPanel";
+import { WhatsAppView } from "./components/WhatsAppView";
+import { AccountantView } from "./components/AccountantView";
+import { CaseStudyView } from "./components/CaseStudyView";
 import { fetchCustomer, resetSession, sendChat, warmup } from "./lib/api";
 import type { ChatMessage, Customer } from "./lib/types";
 
@@ -13,6 +17,20 @@ function makeSessionId(): string {
   return fresh;
 }
 
+function getInitialTab(): TabId {
+  if (typeof window === "undefined") return "customer";
+  const hash = window.location.hash.replace("#", "");
+  if (
+    hash === "customer" ||
+    hash === "whatsapp" ||
+    hash === "accountant" ||
+    hash === "about"
+  ) {
+    return hash;
+  }
+  return "customer";
+}
+
 export default function App() {
   const [sessionId] = useState(() => makeSessionId());
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -20,9 +38,10 @@ export default function App() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>(() => getInitialTab());
+  const [accountantRefresh, setAccountantRefresh] = useState(0);
 
   useEffect(() => {
-    // Warm up the Render container so the first chat call doesn't eat a cold start.
     warmup();
   }, []);
 
@@ -39,6 +58,13 @@ export default function App() {
       cancelled = true;
     };
   }, [sessionId]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== `#${activeTab}`) {
+      window.history.replaceState(null, "", `#${activeTab}`);
+    }
+  }, [activeTab]);
 
   const send = async (text: string) => {
     if (!text.trim() || loading) return;
@@ -61,6 +87,7 @@ export default function App() {
       };
       setMessages((prev) => [...prev, assistant]);
       setCustomer(resp.customer);
+      setAccountantRefresh((n) => n + 1);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
@@ -79,22 +106,38 @@ export default function App() {
     setMessages([]);
     setError(null);
     setInput("");
+    setAccountantRefresh((n) => n + 1);
+  };
+
+  const sharedChatProps = {
+    messages,
+    input,
+    onInputChange: setInput,
+    onSend: () => send(input),
+    onQuickPrompt: (p: string) => send(p),
+    onReset,
+    loading,
+    error,
   };
 
   return (
     <div className="h-full flex flex-col">
-      <IdentityBanner customer={customer} />
-      <main className="flex-1 min-h-0">
-        <ChatPanel
-          messages={messages}
-          input={input}
-          onInputChange={setInput}
-          onSend={() => send(input)}
-          onQuickPrompt={(p) => send(p)}
-          onReset={onReset}
-          loading={loading}
-          error={error}
-        />
+      <TopBar
+        customer={customer}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+      <main className="flex-1 min-h-0 overflow-y-auto">
+        {activeTab === "customer" && <ChatPanel {...sharedChatProps} />}
+        {activeTab === "whatsapp" && <WhatsAppView {...sharedChatProps} />}
+        {activeTab === "accountant" && (
+          <AccountantView
+            sessionId={sessionId}
+            customer={customer}
+            refreshTrigger={accountantRefresh}
+          />
+        )}
+        {activeTab === "about" && <CaseStudyView />}
       </main>
     </div>
   );
